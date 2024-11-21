@@ -16,3 +16,16 @@ sed -i 's/192.168.100.1/192.168.1.1/g' package/base-files/files/bin/config_gener
 #sed -i "s/.*PKG_VERSION:=.*/PKG_VERSION:=4.3.9_v1.2.14/" package/lean/qBittorrent-static/Makefile
 #sed -i "s/.*PKG_VERSION:=.*/PKG_VERSION:=5.0.0-stable/" package/libs/wolfssl/Makefile
 # welcome test
+
+# Git稀疏克隆，只克隆指定目录到本地
+function git_sparse_clone() {
+  branch="$1" repourl="$2" && shift 2
+  git clone --depth=1 -b $branch --single-branch --filter=blob:none --sparse $repourl
+  repodir=$(echo $repourl | awk -F '/' '{print $(NF)}')
+  cd $repodir && git sparse-checkout set $@
+  mv -f $@ ../package
+  cd .. && rm -rf $repodir
+}
+
+
+git_sparse_clone main https://github.com/Siriling/5G-Modem-Support luci-app-modem quectel_MHI quectel_cm_5G meig-cm meig_QMI_WWAN
